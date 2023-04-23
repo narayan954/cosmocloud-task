@@ -9,7 +9,12 @@ pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
 app = FastAPI()
 client = MongoClient("mongodb://localhost:27017/")
 db = client["mydatabase"]
+
+# users collection
 users = db["users"]
+
+# orgs collection
+orgs = db["orgs"]
 
 # root endpoint
 
@@ -24,7 +29,7 @@ def read_root():
 @app.post("/users")
 async def create_user(user: dict):
     result = users.insert_one(user)
-    return {"id": str(result.inserted_id)}
+    return {"id": str(result.inserted_id), **user}
 
 # List all users in the system
 
@@ -42,3 +47,11 @@ async def get_all_users(offset: int = 0, limit: int = 100, name: str = ""):
 async def get_user(user_id: str):
     result = users.find_one({"_id": ObjectId(user_id)})
     return result if result else {"message": "User not found"}
+
+
+# Create a new Organisation
+
+@app.post("/orgs")
+async def create_org(org: dict):
+    result = orgs.insert_one(org)
+    return {"id": str(result.inserted_id), **org}
