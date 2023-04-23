@@ -36,9 +36,15 @@ async def create_user(user: dict):
 
 @app.get("/users")
 async def get_all_users(offset: int = 0, limit: int = 100, name: str = ""):
+    query = {}
     if name:
-        return list(users.find({"name": name}, {"_id": 0}).skip(offset).limit(limit))
-    return list(users.find({}, {"_id": 0}).skip(offset).limit(limit))
+        query["name"] = name
+
+    users_count = users.count_documents(query)
+    users_list = list(users.find(query, {"_id": 0}).skip(offset).limit(limit))
+
+    return {"total_count": users_count, "users": users_list}
+
 
 # Fetch a single User
 
