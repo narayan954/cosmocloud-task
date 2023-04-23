@@ -8,6 +8,9 @@ This is a FastAPI-based API for user and organization management using MongoDB.
 - Start the API server by running uvicorn main:app --reload
 - The API will be available at http://localhost:8000.
 
+## Documentation
+- The API documentation is available at http://localhost:8000/docs.
+
 ## Endpoints
 - GET /users - Get all users
 - POST /users - Create a new user
