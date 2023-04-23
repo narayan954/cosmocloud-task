@@ -16,3 +16,10 @@ def read_root():
 async def create_user(user: dict):
     result = users.insert_one(user)
     return {"id": str(result.inserted_id)}
+
+# List all users in the system
+@app.get("/users")
+async def get_all_users(offset: int = 0, limit: int = 100, name: str = ""):
+    if name:
+        return list(users.find({"name": name}, {"_id": 0}).skip(offset).limit(limit))
+    return list(users.find({}, {"_id": 0}).skip(offset).limit(limit))
