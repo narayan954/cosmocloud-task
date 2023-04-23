@@ -64,3 +64,16 @@ async def create_org(org: dict):
             status_code=400, detail="Organization already exists")
     result = orgs.insert_one(org)
     return {"id": str(result.inserted_id), **org}
+
+# List all organisation
+
+
+@app.get("/orgs")
+async def get_all_orgs(offset: int = 0, limit: int = 100, name: str = ""):
+    if name:
+        query = {"name": {"$regex": name, "$options": "i"}}
+    else:
+        query = {}
+    orgs = db.orgs.find(query, {"_id": 0}).skip(offset).limit(limit)
+    total_count = db.orgs.count_documents(query)
+    return {"total_count": total_count, "items": list(orgs)}
