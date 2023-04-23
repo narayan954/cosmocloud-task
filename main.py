@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pymongo import MongoClient
 
 # fix ObjectId & FastApi conflict
@@ -53,5 +53,8 @@ async def get_user(user_id: str):
 
 @app.post("/orgs")
 async def create_org(org: dict):
+    if orgs.find_one(org):
+        raise HTTPException(
+            status_code=400, detail="Organization already exists")
     result = orgs.insert_one(org)
     return {"id": str(result.inserted_id), **org}
