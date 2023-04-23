@@ -93,3 +93,15 @@ async def create_user_org(user_org: dict):
     user_orgs.update_one({"user_id": user_org["user_id"], "org_id": user_org["org_id"]}, {
                          "$set": user_org}, upsert=True)
     return user_org
+
+# Remove / Delete permissions for Users on each Organisation
+
+
+@app.delete("/user_orgs")
+async def delete_user_org(user_org: dict):
+    if not users.find_one({"_id": ObjectId(user_org["user_id"])}):
+        raise HTTPException(status_code=400, detail="User not found")
+    if not orgs.find_one({"_id": ObjectId(user_org["org_id"])}):
+        raise HTTPException(status_code=400, detail="Organization not found")
+    result = user_orgs.delete_one(user_org)
+    return {"message": "User org removed successfully"} if result.deleted_count else {"message": "User org not found"}
