@@ -31,6 +31,9 @@ def read_root():
 
 @app.post("/users")
 async def create_user(user: dict):
+    if users.find_one(user):
+        raise HTTPException(
+            status_code=400, detail="User already exists")
     result = users.insert_one(user)
     return {"id": str(result.inserted_id), **user}
 
