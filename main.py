@@ -16,6 +16,9 @@ users = db["users"]
 # orgs collection
 orgs = db["orgs"]
 
+# user_orgs collection
+user_orgs = db["user_orgs"]
+
 # root endpoint
 
 
@@ -77,3 +80,16 @@ async def get_all_orgs(offset: int = 0, limit: int = 100, name: str = ""):
     orgs = db.orgs.find(query, {"_id": 0}).skip(offset).limit(limit)
     total_count = db.orgs.count_documents(query)
     return {"total_count": total_count, "items": list(orgs)}
+
+# Create / Update permissions for Users on each Organisation
+
+
+@app.post("/user_orgs")
+async def create_user_org(user_org: dict):
+    if not users.find_one({"_id": ObjectId(user_org["user_id"])}):
+        raise HTTPException(status_code=400, detail="User not found")
+    if not orgs.find_one({"_id": ObjectId(user_org["org_id"])}):
+        raise HTTPException(status_code=400, detail="Organization not found")
+    user_orgs.update_one({"user_id": user_org["user_id"], "org_id": user_org["org_id"]}, {
+                         "$set": user_org}, upsert=True)
+    return user_org
